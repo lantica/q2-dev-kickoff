@@ -1,0 +1,24 @@
+---
+title: ER diagram
+---
+erDiagram
+
+Devices||--o{ Metrics : publish
+Devices {
+  uuid id
+  integer organization_id
+  timestamptz provisioned
+  timestamptz decommissioned
+  timestamptz series_start
+  timestamptz series_end
+  vatchar password_hash
+  vatchar salt
+  enum(device_type) type
+}
+Metrics {
+  bigserial id
+  uuid device_id
+  timestamptz written_at
+  timestamptz recorded_at
+  jsonb data
+}

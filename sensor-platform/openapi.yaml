@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: Sensor Platform API
+  version: 1.0.0
+  description: |
+    OpenAPI documentation for the Sensor Platform, which manages devices and webhooks for IoT sensors.
+    
+    This API allows you to create and deactivate devices, as well as create and delete webhooks for event notifications.
+    
+    **Note:** The request and response models will be defined later.
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+  - url: https://api.example.com/sensor-platform
+    description: Production server
+
+paths:
+  /devices:
+    post:
+      summary: Create a new device
+      description: Register a new IoT sensor device in the platform.
+      operationId: createDevice
+      tags:
+        - Devices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeviceRequest'
+      responses:
+        '201':
+          description: Device created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDeviceResponse'
+        '400':
+          description: Invalid request
+        '500':
+          description: Internal server error
+
+  /devices/{deviceId}/deactivate:
+    post:
+      summary: Deactivate a device
+      description: Deactivate an existing IoT sensor device.
+      operationId: deactivateDevice
+      tags:
+        - Devices
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: Unique identifier for the device
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Device deactivated successfully
+
+  /webhooks:
+    post:
+      summary: Create a webhook
+      description: Register a new webhook for event notifications.
+      operationId: createWebhook
+      tags:
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookRequest'
+      responses:
+        '201':
+          description: Webhook created successfully
+        '400':
+          description: Invalid request
+        '500':
+          description: Internal server error
+
+  /webhooks/{webhookId}:
+    delete:
+      summary: Delete a webhook
+      description: Delete an existing webhook.
+      operationId: deleteWebhook
+      tags:
+        - Webhooks
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          description: Unique identifier for the webhook
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Webhook deleted successfully
+        '404':
+          description: Webhook not found
+        '500':
+          description: Internal server error
+
+tags:
+  - name: Devices
+    description: Operations related to IoT sensor devices
+  - name: Webhooks
+    description: Operations related to webhooks for event notifications
+
+components:
+  schemas:
+    CreateDeviceRequest:
+      type: object
+      properties:
+        organization_id:
+          type: integer
+          description: Organization ID to which the device belongs
+        type:
+          type: string
+          description: Device type
+          enum: [safie, liliz, smartGemba, PLC]
+      required:
+        - organization_id
+        - type
+    CreateDeviceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the device
+        password:
+          type: string
+          description: Password for the device
+      required:
+        - id
+        - password
+    CreateWebhookRequest:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: Unique identifier for the device
+        jsonPath:
+          type: string
+          description: JSONPath expression to select data
+      required:
+        - deviceId
+        - jsonPath
